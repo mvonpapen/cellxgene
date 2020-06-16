@@ -24,15 +24,21 @@ label -> {
 */
 const getCoordinatesByLabel = (world, categoryName, layoutDimNames) => {
   const coordsByCategoryLabel = new Map();
-  // If the coloredBy is not a categorical col
-  if (!isSelectableCategoryName(world.schema, categoryName)) {
-    return coordsByCategoryLabel;
-  }
 
   const { obsAnnotations, obsLayout } = world;
-  const categoryArray = obsAnnotations.col(categoryName).asArray();
-  const layoutXArray = obsLayout.col(layoutDimNames[0]).asArray();
-  const layoutYArray = obsLayout.col(layoutDimNames[1]).asArray();
+  const categoryArray = obsAnnotations.col(categoryName)?.asArray();
+  const layoutXArray = obsLayout.col(layoutDimNames[0])?.asArray();
+  const layoutYArray = obsLayout.col(layoutDimNames[1])?.asArray();
+
+  // If the category is not selectable or if any of the columns are undefined return an empty map
+  if (
+    !isSelectableCategoryName(world.schema, categoryName) ||
+    categoryArray ||
+    layoutXArray ||
+    layoutYArray
+  ) {
+    return coordsByCategoryLabel;
+  }
 
   const categorySummary = createCategorySummary(world, categoryName);
   const {
