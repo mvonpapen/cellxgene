@@ -1,5 +1,3 @@
-from flask import current_app
-
 from sqlalchemy import (
     Column,
     create_engine,
@@ -15,12 +13,11 @@ from sqlalchemy.orm import relationship, sessionmaker
 Base = declarative_base()
 
 DEFAULT_DATETIME = text("now()")
-config = current_app.app_config
 
 
 class DBSessionMaker:
-    def __init__(self):
-        self.engine = create_engine(config.relational_db__database_uri, connect_args={"connect_timeout": 5})
+    def __init__(self, database_uri):
+        self.engine = create_engine(database_uri, connect_args={"connect_timeout": 5})
         self.session_maker = sessionmaker(bind=self.engine)
 
     def session(self, **kwargs):

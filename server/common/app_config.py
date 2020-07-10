@@ -230,6 +230,7 @@ class AppConfig(object):
         self.handle_embeddings(context)
         self.handle_diffexp(context)
         self.handle_limits(context)
+        self.handle_relational_db(context)
 
         self.is_completed = True
         self.check_config()
@@ -426,7 +427,6 @@ class AppConfig(object):
 
     def handle_user_annotations(self, context):
         self.__check_attr("user_annotations__enable", bool)
-        self.__check_attr("relational_db__database_uri", str)
         self.__check_attr("user_annotations__type", str)
         self.__check_attr("user_annotations__local_file_csv__directory", (type(None), str))
         self.__check_attr("user_annotations__local_file_csv__file", (type(None), str))
@@ -487,6 +487,10 @@ class AppConfig(object):
                 context["messagefn"](
                     "Warning: --experimental-annotations-ontology-obo" " ignored as annotations are disabled."
                 )
+
+    def handle_relational_db(self, context):
+        self.__check_attr("relational_db__database_uri", str)
+
 
     def handle_embeddings(self, context):
         self.__check_attr("embeddings__names", list)
