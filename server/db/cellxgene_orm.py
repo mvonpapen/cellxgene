@@ -38,8 +38,8 @@ class DBSessionMaker:
 
 class CellxgGeneUser(Base):
     """
-    A registered Corpora user.
-    Maintains user details such as contact information and access control settings.
+    A registered CellxGene user.
+    Links a user to their annotations
     """
 
     __tablename__ = "user"
@@ -54,8 +54,8 @@ class CellxgGeneUser(Base):
 
 class Annotation(Base):
     """
-    A Corpora project represents an in progress or live submission of a lab experiment.
-    DbProjects are associated with one or more single-cell datasets and links to external repositories.
+    An annotation is a link between a user, a dataset and tiledb dataframe. A user can have multiple annotations for a
+    dataset, the most recent annotation (based on created_at) will be the default returned when queried
     """
 
     __tablename__ = "annotation"
@@ -73,9 +73,7 @@ class Annotation(Base):
 
 class Dataset(Base):
     """
-    Models a single experiment uploaded and processed by Corpora.
-    Describes experiment metadata such as specimen and assay data.
-    Related data files are represented by DbDataArtifacts.
+    Datasets refer to cellxgene datasets stored in tiledb
     """
 
     __tablename__ = "dataset"
