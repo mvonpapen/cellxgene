@@ -125,6 +125,8 @@ limits:
   column_request_max: 32
   diffexp_cellcount_max: null
 
+relational_db:
+  database_uri: "postgresql://postgres:test_pw@localhost:5432"
 """
 
 

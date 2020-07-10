@@ -100,6 +100,8 @@ class AppConfig(object):
             self.limits__diffexp_cellcount_max = dc["limits"]["diffexp_cellcount_max"]
             self.limits__column_request_max = dc["limits"]["column_request_max"]
 
+            self.relational_db__database_uri = dc["relational_db"]["database_uri"]
+
         except KeyError as e:
             raise ConfigurationError(f"Unexpected config: {str(e)}")
 
@@ -207,7 +209,6 @@ class AppConfig(object):
         parameters is done"""
 
         if messagefn is None:
-
             def noop(message):
                 pass
 
@@ -425,6 +426,7 @@ class AppConfig(object):
 
     def handle_user_annotations(self, context):
         self.__check_attr("user_annotations__enable", bool)
+        self.__check_attr("relational_db__database_uri", str)
         self.__check_attr("user_annotations__type", str)
         self.__check_attr("user_annotations__local_file_csv__directory", (type(None), str))
         self.__check_attr("user_annotations__local_file_csv__file", (type(None), str))
