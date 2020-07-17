@@ -154,6 +154,9 @@ dataset:
     enable: true
     lfc_cutoff: 0.01
     top_n: 10
+limits:
+  column_request_max: 32
+  diffexp_cellcount_max: null
 
 relational_db:
   database_uri: "postgresql://postgres:test_pw@localhost:5432"

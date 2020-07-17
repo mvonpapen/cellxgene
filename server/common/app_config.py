@@ -142,6 +142,9 @@ class AppConfig(object):
         self.dataroot_config[dataroot_tag].update(**config)
         self.dataroot_config[dataroot_tag].update_from_config(kw, dataroot_tag)
 
+        except KeyError as e:
+            raise ConfigurationError(f"Unexpected config: {str(e)}")
+
     def complete_config(self, messagefn=None):
         """The configure options are checked, and any additional setup based on the config
         parameters is done"""
