@@ -3,10 +3,10 @@ from setuptools import setup, find_packages
 with open("README.md", "rb") as fh:
     long_description = fh.read().decode()
 
-with open("server/requirements.txt") as fh:
+with open("cellxgene/server/requirements.txt") as fh:
     requirements = fh.read().splitlines()
 
-with open("server/requirements-prepare.txt") as fh:
+with open("cellxgene/server/requirements-prepare.txt") as fh:
     requirements_prepare = fh.read().splitlines()
 
 setup(
