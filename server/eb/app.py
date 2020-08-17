@@ -160,6 +160,7 @@ try:
     app_config.update_default_dataset_config(
         embeddings__enable_reembedding=False,
     )
+
     app_config.update_server_config(multi_dataset__allowed_matrix_types=["cxg"],)
     app_config.complete_config(logging.info)
 

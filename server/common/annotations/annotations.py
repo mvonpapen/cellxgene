@@ -1,3 +1,4 @@
+import logging
 from abc import ABCMeta, abstractmethod
 
 import fastobo
@@ -39,6 +40,8 @@ class Annotations(metaclass=ABCMeta):
             raise OntologyLoadFailure("Error loading OBO file") from e
 
     def get_schema(self, data_adaptor):
+        logger = logging.getLogger(__name__)
+        logger.info("Made it to annotations.get_schema")
         schema = []
         labels = self.read_labels(data_adaptor)
         if labels is not None and not labels.empty:

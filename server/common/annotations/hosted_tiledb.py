@@ -1,4 +1,5 @@
 import json
+import logging
 import os
 import re
 import time
@@ -6,6 +7,7 @@ import time
 import pandas as pd
 import tiledb
 from flask import current_app
+from tiledb.libtiledb import TileDBError
 
 from server.common.annotations.annotations import Annotations
 from server.common.errors import AnnotationCategoryNameError
@@ -21,6 +23,29 @@ class AnnotationsHostedTileDB(Annotations):
         super().__init__()
         self.db = db
         self.directory_path = directory_path
+        config = tiledb.Config()
+        config["vfs.s3.region"] = "us-west-2"
+        self.ctx = tiledb.Ctx(config=config)
+        try:
+            tiledb.default_ctx(config)
+        except TileDBError:
+            pass
+
+    # def get_schema(self, data_adaptor):
+    #     user_id = current_app.auth.get_user_id()
+    #     logger = logging.getLogger(__name__)
+    #
+    #     dataset_name = data_adaptor.get_location()
+    #     dataset_id = self.db.get_or_create_dataset(dataset_name)
+    #     annotation_object = None
+    #     if user_id:
+    #         annotation_object = self.db.query_for_most_recent(
+    #             Annotation, [Annotation.user_id == user_id, Annotation.dataset_id == dataset_id]
+    #         )
+    #     if annotation_object:
+    #         logger.info(f"SCHEMA HINTS: {annotation_object.schema_hints}")
+    #         return json.loads(annotation_object.schema_hints)
+    #     return None
 
     def check_category_names(self, df):
         original_category_names = df.keys().to_list()
@@ -45,19 +70,25 @@ class AnnotationsHostedTileDB(Annotations):
 
     def read_labels(self, data_adaptor):
         user_id = current_app.auth.get_user_id()
-        dataset_name = data_adaptor.get_location()
-        dataset_id = str(self.db.query(
-            table_args=[CellxGeneDataset],
-            filter_args=[CellxGeneDataset.name == dataset_name]
-        )[0].id)
+        logger = logging.getLogger(__name__)
 
-        annotation_object = self.db.query_for_most_recent(
-            Annotation, [Annotation.user_id == user_id, Annotation.dataset_id == dataset_id]
-        )
+        dataset_name = data_adaptor.get_location()
+        dataset_id = self.db.get_or_create_dataset(dataset_name)
+        annotation_object = None
+        if user_id:
+            annotation_object = self.db.query_for_most_recent(
+                Annotation, [Annotation.user_id == user_id, Annotation.dataset_id == dataset_id]
+            )
         if annotation_object:
-            df = tiledb.open(annotation_object.tiledb_uri)
-            pandas_df = self.convert_to_pandas_df(df)
-            return pandas_df
+            try:
+                df = tiledb.open(annotation_object.tiledb_uri, ctx=self.ctx)
+                logger.info(f"dataframe: {df}")
+                logger.info(f"Schema hints: {annotation_object.schema_hints}")
+                pandas_df = self.convert_to_pandas_df(df)
+                return pandas_df
+            except Exception as e:
+                logger.info(f"Issue pulling tiledb array: {e}")
+                return None
         else:
             return None
 
@@ -89,14 +120,17 @@ class AnnotationsHostedTileDB(Annotations):
         return new_df
 
     def write_labels(self, df, data_adaptor):
-
         user_id = current_app.auth.get_user_id()
+        user_name = current_app.auth.get_user_name().replace(' ', '')
         timestamp = time.time()
-        dataset_name = data_adaptor.get_location()
-        dataset_id = self.db.get_or_create_dataset(dataset_name)
+        dataset_location = data_adaptor.get_location()
+        dataset_id = self.db.get_or_create_dataset(dataset_location)
+        dataset_name = data_adaptor.get_title()
         user_id = self.db.get_or_create_user(user_id)
 
-        uri = f"{self.directory_path}-{dataset_name}-{user_id}-{timestamp}"
+        uri = f"{self.directory_path}{dataset_name}/{user_name}/{timestamp}"
+        logger = logging.getLogger(__name__)
+        logger.info(uri)
         if uri.startswith("s3://"):
             pass
         else:
@@ -114,7 +148,7 @@ class AnnotationsHostedTileDB(Annotations):
             # convert to tiledb datatypes
             for col in df:
                 df[col] = df[col].astype(get_dtype_of_array(df[col]))
-            tiledb.from_pandas(uri, df)
+            tiledb.from_pandas(uri, df, ctx=self.ctx)
 
         self.db.session.add(annotation)
         self.db.session.commit()

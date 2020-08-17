@@ -16,7 +16,7 @@ from server.common.errors import (
     DatasetAccessError,
     ColorFormatException,
 )
-
+logger = logging.getLogger(__name__)
 import json
 from server.data_common.fbs.matrix import decode_matrix_fbs
 
@@ -101,11 +101,12 @@ def schema_get_helper(data_adaptor):
     """helper function to gather the schema from the data source and annotations"""
     schema = data_adaptor.get_schema()
     schema = copy.deepcopy(schema)
-
+    logger.info("MADISON in schema_get_helper")
     # add label obs annotations as needed
     annotations = data_adaptor.dataset_config.user_annotations
     if annotations is not None:
         label_schema = annotations.get_schema(data_adaptor)
+        logger.info(f"so we got the schema from annotations... {label_schema}")
         schema["annotations"]["obs"]["columns"].extend(label_schema)
 
     return schema
@@ -134,13 +135,14 @@ def annotations_obs_get(request, data_adaptor):
     preferred_mimetype = request.accept_mimetypes.best_match(["application/octet-stream"])
     if preferred_mimetype != "application/octet-stream":
         return abort(HTTPStatus.NOT_ACCEPTABLE)
-
+    logger.info("Getting annotations")
     try:
         labels = None
         annotations = data_adaptor.dataset_config.user_annotations
         if annotations:
             labels = annotations.read_labels(data_adaptor)
         fbs = data_adaptor.annotation_to_fbs_matrix(Axis.OBS, fields, labels)
+        logger.info(f"labels: {labels}")
         return make_response(fbs, HTTPStatus.OK, {"Content-Type": "application/octet-stream"})
     except KeyError as e:
         return abort_and_log(HTTPStatus.BAD_REQUEST, str(e), include_exc_info=True)
