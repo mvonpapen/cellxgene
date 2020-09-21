@@ -1,7 +1,7 @@
 const path = require("path");
 const historyApiFallback = require("connect-history-api-fallback");
 const chalk = require("chalk");
-const express = require("express");
+const httpsLocalhost = require("https-localhost");
 const favicon = require("serve-favicon");
 const webpack = require("webpack");
 const devMiddleware = require("webpack-dev-middleware");
@@ -25,7 +25,7 @@ compiler.plugin("done", (stats) => {
 });
 
 // Launch server
-const app = express();
+const app = httpsLocalhost();
 
 app.use(historyApiFallback({ verbose: false }));
 
