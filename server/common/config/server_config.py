@@ -164,14 +164,14 @@ class ServerConfig(BaseConfig):
 
         # oauth
         ptypes = str if self.authentication__type == "oauth" else (type(None), str)
-        self.validate_correct_type_of_configuration_attribute("authentication__params_oauth__oauth_api_base_url", ptypes)
+        self.validate_correct_type_of_configuration_attribute("authentication__params_oauth__oauth_api_base_url", ptypes)  # noqa E501
         self.validate_correct_type_of_configuration_attribute("authentication__params_oauth__client_id", ptypes)
         self.validate_correct_type_of_configuration_attribute("authentication__params_oauth__client_secret", ptypes)
-        self.validate_correct_type_of_configuration_attribute("authentication__params_oauth__jwt_decode_options", (type(None), dict))
+        self.validate_correct_type_of_configuration_attribute("authentication__params_oauth__jwt_decode_options", (type(None), dict))  # noqa E501
         self.validate_correct_type_of_configuration_attribute("authentication__params_oauth__session_cookie", bool)
 
         if self.authentication__params_oauth__session_cookie:
-            self.validate_correct_type_of_configuration_attribute("authentication__params_oauth__cookie", (type(None), dict))
+            self.validate_correct_type_of_configuration_attribute("authentication__params_oauth__cookie", (type(None), dict))  # noqa E501
         else:
             self.validate_correct_type_of_configuration_attribute("authentication__params_oauth__cookie", dict)
         #   secret key: first, from CXG_OAUTH_CLIENT_SECRET environment variable
@@ -265,7 +265,7 @@ class ServerConfig(BaseConfig):
         self.validate_correct_type_of_configuration_attribute("multi_dataset__index", (type(None), bool, str))
         self.validate_correct_type_of_configuration_attribute("multi_dataset__allowed_matrix_types", list)
         self.validate_correct_type_of_configuration_attribute("multi_dataset__matrix_cache__max_datasets", int)
-        self.validate_correct_type_of_configuration_attribute("multi_dataset__matrix_cache__timelimit_s", (type(None), int, float))
+        self.validate_correct_type_of_configuration_attribute("multi_dataset__matrix_cache__timelimit_s", (type(None), int, float))  # noqa E501
 
         if self.multi_dataset__dataroot is None:
             return

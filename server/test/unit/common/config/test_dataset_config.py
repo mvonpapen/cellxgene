@@ -81,7 +81,6 @@ class TestDatasetConfig(ConfigTests):
         with self.assertRaises(ConfigurationError):
             config.server_config.complete_config(self.context)
 
-
     def test_handle_user_annotations__adds_warning_message_if_annotation_vars_set_when_annotations_disabled(self):
         config = self.get_config(enable_users_annotations="false", authentication_enable="false",
                                  db_uri="shouldnt/be/set")
